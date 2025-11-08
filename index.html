@@ -129,17 +129,15 @@
     <button id="close" class="close">✕</button>
   </div>
 
-  <!-- Música inicial -->
   <audio id="audio" preload="auto" src="music.mp3" loop></audio>
-  <!-- Música troll final -->
-  <audio id="trollAudio" preload="auto" src="troll.mp3"></audio>
+  <audio id="troll" preload="auto" src="troll.mp3"></audio>
 
 <script>
   const btn = document.getElementById('playBtn');
   const overlay = document.getElementById('overlay');
   const anim = document.getElementById('anim');
   const audio = document.getElementById('audio');
-  const trollAudio = document.getElementById('trollAudio');
+  const troll = document.getElementById('troll');
   const closeBtn = document.getElementById('close');
   const countdownEl = document.getElementById('countdown');
 
@@ -157,38 +155,24 @@
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
         countdownEl.style.display = 'none';
-
-        // Troca o GIF por monk.png e ajusta o estilo
         anim.src = "monk.png";
         anim.classList.add("monk");
 
-        // Para a música atual
+        // pausa a música principal e toca a troll
         audio.pause();
-        audio.currentTime = 0;
-
-        // Toca a música troll
-        trollAudio.play().catch(err => console.warn('Erro ao tocar troll.mp3:', err));
+        troll.currentTime = 0;
+        troll.play();
       }
     }, 1000);
   }
 
   async function openExperience() {
-    // muda o nome da aba
     document.title = "Surpresa!";
-
     overlay.classList.add('show');
 
     const gifUrl = anim.getAttribute('data-src');
-    if (!anim.src) {
-      const img = new Image();
-      img.src = gifUrl;
-      img.onload = () => {
-        anim.src = gifUrl;
-        requestAnimationFrame(()=> anim.classList.add('visible'));
-      };
-    } else {
-      anim.classList.add('visible');
-    }
+    anim.src = gifUrl;
+    requestAnimationFrame(()=> anim.classList.add('visible'));
 
     try {
       if (!audioContext) {
@@ -203,6 +187,8 @@
         await audioContext.resume();
       }
 
+      troll.pause();
+      troll.currentTime = 0;
       audio.currentTime = 0;
       await audio.play();
 
@@ -214,24 +200,26 @@
   }
 
   function closeExperience() {
+    // Para músicas e reinicia estado
+    audio.pause();
+    troll.pause();
+    audio.currentTime = 0;
+    troll.currentTime = 0;
+
+    // Remove o monk.png e volta ao gif original
     anim.classList.remove('visible', 'monk');
+    anim.src = anim.getAttribute('data-src');
+
     overlay.classList.remove('show');
     countdownEl.style.opacity = 0;
     countdownEl.style.display = 'block';
-
-    document.title = "?"; // restaura o nome original
-
-    audio.pause();
-    audio.currentTime = 0;
-    trollAudio.pause();
-    trollAudio.currentTime = 0;
+    document.title = "?";
 
     clearInterval(countdownInterval);
   }
 
   btn.addEventListener('click', openExperience);
   closeBtn.addEventListener('click', closeExperience);
-
   document.addEventListener('keydown', (e)=>{
     if (e.key === 'Escape' && overlay.classList.contains('show')) closeExperience();
   });
