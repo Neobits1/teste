@@ -129,13 +129,17 @@
     <button id="close" class="close">✕</button>
   </div>
 
+  <!-- Música inicial -->
   <audio id="audio" preload="auto" src="music.mp3" loop></audio>
+  <!-- Música troll final -->
+  <audio id="trollAudio" preload="auto" src="troll.mp3"></audio>
 
 <script>
   const btn = document.getElementById('playBtn');
   const overlay = document.getElementById('overlay');
   const anim = document.getElementById('anim');
   const audio = document.getElementById('audio');
+  const trollAudio = document.getElementById('trollAudio');
   const closeBtn = document.getElementById('close');
   const countdownEl = document.getElementById('countdown');
 
@@ -153,9 +157,17 @@
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
         countdownEl.style.display = 'none';
+
         // Troca o GIF por monk.png e ajusta o estilo
         anim.src = "monk.png";
         anim.classList.add("monk");
+
+        // Para a música atual
+        audio.pause();
+        audio.currentTime = 0;
+
+        // Toca a música troll
+        trollAudio.play().catch(err => console.warn('Erro ao tocar troll.mp3:', err));
       }
     }, 1000);
   }
@@ -211,6 +223,8 @@
 
     audio.pause();
     audio.currentTime = 0;
+    trollAudio.pause();
+    trollAudio.currentTime = 0;
 
     clearInterval(countdownInterval);
   }
